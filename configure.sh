@@ -14,14 +14,11 @@ function amalgamate_croaring()
   ../deps/CRoaring/amalgamation.sh 
   popd
 } 
-function configure_redis()
+function configure_keydb()
 {
   pushd .
-  cd deps/redis
-
-  cd deps
-  make hiredis jemalloc linenoise lua
-  cd ..
+  cd deps/KeyDB
+  git submodule init && git submodule update
 
   make
   popd
@@ -43,22 +40,22 @@ function build()
   cd ..
   mkdir -p dist
   cp "build/$LIB" dist
-  cp deps/redis/redis.conf dist
-  cp deps/redis/src/{redis-benchmark,redis-check-aof,redis-check-rdb,redis-cli,redis-sentinel,redis-server} dist
-  echo "loadmodule $(pwd)/dist/$LIB" >> dist/redis.conf
+  cp deps/KeyDB/keydb.conf dist
+  cp deps/KeyDB/src/{keydb-benchmark,keydb-check-aof,keydb-check-rdb,keydb-cli,keydb-sentinel,keydb-server} dist
+  printf "\n\nloadmodule $(pwd)/dist/$LIB" >> dist/keydb.conf
 }
 function instructions()
 {
   echo ""
-  echo "Start redis server with redis-roaring:"
-  echo "./dist/redis-server ./dist/redis.conf"  
+  echo "Start KeyDB server with redis-roaring:"
+  echo "./dist/keydb-server ./dist/keydb.conf"
   echo "Connect to server:"
-  echo "./dist/redis-cli"
+  echo "./dist/keydb-cli"
 }
 
 configure_submodules
 amalgamate_croaring
-configure_redis
+configure_keydb
 configure_hiredis
 build
 instructions
